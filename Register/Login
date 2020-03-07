@@ -1,0 +1,104 @@
+from tkinter import *
+import csv
+
+class user_information():
+    def __init__(self, username_db, password_db):
+        self.username_db = username_db
+        self.password_db = password_db
+
+def readCSVFile():
+    users =[];
+    with open('userinfo.csv') as readfile:
+        line = readfile.readline().rstrip('\n')
+        while line:
+            item=line.split(',')
+            currentUser=user_information(item[0], item[1])
+            users.append(currentUser)
+            line = readfile.readline().rstrip('\n') 
+    return users
+ 
+#not working
+def register_validation(username_info, users):
+    passed=True
+    for i in range(len(users)):
+        if users[i].username_db==username_info or username_info=='':
+            passed=False
+    return passed
+    
+def register_user():
+    userList = readCSVFile()
+    
+    username_info = username_entry.get()
+    password_info = password_entry.get()
+
+    passed = register_validation(username_info, userList)
+
+    if passed:
+        with open('userinfo.csv', 'a', newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=' ',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            spamwriter.writerow([username_info] +[","]+ [password_info])
+        
+        username_entry.delete(0, END)
+        password_entry.delete(0, END)
+        Label(register_screen, text = "Registration successful!", bg="white", fg="lightgreen").pack()
+    else:
+        Label(register_screen, text = "Username must be valid, please try again", bg="white", fg="red").pack()
+
+def register():
+    
+    global register_screen
+    
+    register_screen = Toplevel(home)
+    register_screen.title("Register")
+    register_screen.geometry("300x250")
+    register_screen.configure(bg="white")
+
+    global username
+    global password
+    global username_entry
+    global password_entry
+    username = StringVar()
+    password = StringVar()
+
+    Label(register_screen, text="Please enter details below", fg="white", bg="lightblue", width="300", height="2",font=("Verdana", 13)).pack()
+    Label(register_screen, text="", bg="white").pack()
+
+    username_label = Label(register_screen, text="Username * ", bg=("white"))
+    username_label.pack()
+
+    username_entry = Entry(register_screen, textvariable=username)
+    username_entry.pack()
+
+    password_label = Label(register_screen, text="Password * ", bg=("white"))
+    password_label.pack()
+
+    password_entry = Entry(register_screen, textvariable=password, show='*')
+    password_entry.pack()
+
+    Label(register_screen, text="", bg=("white")).pack()
+
+    Button(register_screen, text = "Register", width=10, height=1, command=register_user).pack()
+
+def login():
+    print('login')
+    
+def home_screen():
+    global home
+    home = Tk()
+    home.geometry('300x250')
+    home.title("Welcome!")
+    home.configure(bg="white")
+                   
+    Label(text="Login or Register?", fg="white", bg="lightblue", width="300", height="2",font=("Verdana", 13)).pack()
+    Label(text="", bg="white").pack()
+
+    Button(home, text="Login", height="2", width="30", relief="groove", command=login).pack()
+    Label(text="", bg="white").pack()
+    
+    Button(text="Register", height="2", width="30", relief="groove", command=register).pack()
+
+#Main Program
+
+home_screen()
+home.mainloop()
